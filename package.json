@@ -2,7 +2,7 @@
   "private": true,
   "main": "main/index.js",
   "name": "timing_chart_editor",
-  "version": "0.0.1",
+  "version": "3.0.1",
   "author": {
     "name": "oud0nn",
     "email": "your.email@example.com"
