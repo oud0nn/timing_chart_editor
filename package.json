@@ -49,6 +49,12 @@
   },
   "build": {
     "asar": true,
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
     "linux": {
       "target": [
         "AppImage",
