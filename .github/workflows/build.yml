@@ -39,6 +39,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         # タグがプッシュされた時、または手動実行時にアップロードします
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           # リリースに追加するファイルのパスを指定します
           files: |
