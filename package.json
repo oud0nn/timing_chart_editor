@@ -45,6 +45,12 @@
   },
   "build": {
     "asar": true,
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
     "files": [
       "!renderer/context.tsx",
       "!renderer/pages/editor/*",
