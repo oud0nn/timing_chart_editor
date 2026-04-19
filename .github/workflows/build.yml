@@ -1,0 +1,54 @@
+name: Build Electron App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  # Releaseタグを作成したときにビルドする場合は以下のコメントを外します
+  # release:
+  #   types: [published]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # package.jsonのdevDependencies（@types/node: ^20.11.25）に合わせています
+          cache: 'npm'
+
+      - name: Install Dependencies
+        # npm ci を使用すると package-lock.json に基づいてクリーンなインストールを行います
+        run: npm ci
+
+      - name: Build Electron App
+        # 環境変数 GH_TOKEN または GITHUB_TOKEN があると release 時の自動ドラフト作成などに役立ちます
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # パッケージ内に定義されている dist コマンドを実行します（npm run build && electron-builder）
+        run: npm run dist
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-app-${{ matrix.os }}
+          # electron-builder のデフォルトの出力先は 'dist' ディレクトリです
+          # 拡張子を指定してインストーラーや実行ファイルのみをアップロードします
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.zip
+          retention-days: 7

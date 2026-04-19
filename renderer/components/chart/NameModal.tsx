@@ -1,3 +1,36 @@
+import React from 'react';
+import {
+  Dialog,
+  DialogSurface,
+  DialogTitle,
+  DialogBody,
+  DialogContent,
+  DialogActions,
+  Button,
+  Input,
+  Select,
+  makeStyles
+} from '@fluentui/react-components';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
+const useStyles = makeStyles({
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+  row: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+  arrows: {
+    display: "flex",
+    flexDirection: "column",
+  }
+});
+
 export const NameModal = ({
   nameData,
   setNameData,
@@ -12,8 +45,8 @@ export const NameModal = ({
   setNameEditingValue,
   editingSignalTypeValue,
   setEditingSignalTypeValue,
-}) => {
-  //   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+}: any) => {
+  const styles = useStyles();
 
   const saveNameEdit = () => {
     if (editingIndex !== null) {
@@ -44,27 +77,12 @@ export const NameModal = ({
     }
   };
 
-  const addNewSignal = () => {
-    const newNameData = [...nameData];
-    const newSignalTypeData = [...signalType];
-    const newChartData = [...chartData];
-    newNameData.push("NEW_DATA");
-    newSignalTypeData.push("data");
-    newChartData.push([0]);
-    setNameData(newNameData);
-    setSignalType(newSignalTypeData);
-    setChartData(newChartData);
-    setIsNameModalOpen(false);
-    setEditingIndex(null);
-  };
-
   const moveSignalUp = () => {
     if (editingIndex !== null && editingIndex > 0) {
       const newNameData = [...nameData];
       const newSignalTypeData = [...signalType];
       const newChartData = [...chartData];
 
-      // Swap with index - 1
       [newNameData[editingIndex], newNameData[editingIndex - 1]] = [
         newNameData[editingIndex - 1],
         newNameData[editingIndex],
@@ -91,7 +109,6 @@ export const NameModal = ({
       const newSignalTypeData = [...signalType];
       const newChartData = [...chartData];
 
-      // Swap with index + 1
       [newNameData[editingIndex], newNameData[editingIndex + 1]] = [
         newNameData[editingIndex + 1],
         newNameData[editingIndex],
@@ -118,143 +135,64 @@ export const NameModal = ({
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "white",
-          padding: "20px",
-          borderRadius: "8px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          minWidth: "300px",
-        }}
-      >
-        <h3 style={{ marginTop: 0 }}>Edit Signal Name</h3>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "14px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              marginRight: "8px",
-            }}
-          >
-            <button
-              onClick={moveSignalUp}
-              disabled={editingIndex === 0}
-              style={{
-                marginBottom: "2px",
-                cursor: "pointer",
-                padding: "2px 6px",
-              }}
-            >
-              ▲
-            </button>
-            <button
-              onClick={moveSignalDown}
-              disabled={editingIndex === nameData.length - 1}
-              style={{ cursor: "pointer", padding: "2px 6px" }}
-            >
-              ▼
-            </button>
-          </div>
-          <input
-            type="text"
-            value={editingNameValue}
-            onChange={(e) => setNameEditingValue(e.target.value)}
-            style={{
-              flexGrow: 1,
-              padding: "8px",
-              boxSizing: "border-box",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-            }}
-            autoFocus
-          />
-        </div>
+    <Dialog open={true} onOpenChange={(e, data) => !data.open && cancelNameEdit()}>
+      <DialogSurface>
+        <DialogBody>
+          <DialogTitle>Edit Signal</DialogTitle>
+          <DialogContent className={styles.container}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Signal Name</label>
+              <div className={styles.row}>
+                <div className={styles.arrows}>
+                  <Button
+                    icon={<ArrowDropUpIcon />}
+                    appearance="subtle"
+                    onClick={moveSignalUp}
+                    disabled={editingIndex === 0}
+                    size="small"
+                  />
+                  <Button
+                    icon={<ArrowDropDownIcon />}
+                    appearance="subtle"
+                    onClick={moveSignalDown}
+                    disabled={editingIndex === nameData.length - 1}
+                    size="small"
+                  />
+                </div>
+                <Input
+                  value={editingNameValue}
+                  onChange={(e, data) => setNameEditingValue(data.value)}
+                  style={{ flexGrow: 1 }}
+                  autoFocus
+                />
+              </div>
+            </div>
 
-        <h3 style={{ marginTop: 0 }}>Edit Signal Type</h3>
-        <select
-          value={editingSignalTypeValue}
-          onChange={(e) =>
-            setEditingSignalTypeValue(e.target.value as SignalType)
-          }
-          style={{
-            width: "100%",
-            padding: "8px",
-            marginBottom: "14px",
-            boxSizing: "border-box",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-          }}
-        >
-          <option value="data">Data</option>
-          <option value="clock">Clock</option>
-        </select>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: "8px",
-          }}
-        >
-          <button
-            onClick={deleteSignal}
-            style={{
-              padding: "8px 14px",
-              borderRadius: "4px",
-              border: "none",
-              backgroundColor: "#ff0051ff",
-              color: "white",
-              cursor: "pointer",
-            }}
-          >
-            Delete Signal
-          </button>
-          <button
-            onClick={cancelNameEdit}
-            style={{
-              padding: "8px 14px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              backgroundColor: "#fff",
-              cursor: "pointer",
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={saveNameEdit}
-            style={{
-              padding: "8px 14px",
-              borderRadius: "4px",
-              border: "none",
-              backgroundColor: "#007bff",
-              color: "white",
-              cursor: "pointer",
-            }}
-          >
-            Save
-          </button>
-        </div>
-      </div>
-    </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Signal Type</label>
+              <Select
+                value={editingSignalTypeValue}
+                onChange={(e, data) => setEditingSignalTypeValue(data.value)}
+                style={{ width: '100%' }}
+              >
+                <option value="data">Data</option>
+                <option value="clock">Clock</option>
+              </Select>
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button appearance="secondary" style={{ color: "#ff0051ff" }} onClick={deleteSignal}>
+              Delete Signal
+            </Button>
+            <Button appearance="secondary" onClick={cancelNameEdit}>
+              Cancel
+            </Button>
+            <Button appearance="primary" onClick={saveNameEdit}>
+              Save
+            </Button>
+          </DialogActions>
+        </DialogBody>
+      </DialogSurface>
+    </Dialog>
   );
 };

@@ -1,7 +1,9 @@
-import * as React from "react";
-import { useContext } from "react";
 import { AppProps } from "next/app";
-import Head from "next/head";
+import { initializeIcons } from '@fluentui/react/lib/Icons';
+import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+
+initializeIcons();
+
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
@@ -15,14 +17,15 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     font-family: 'SourceHanCodeJP-Normal';
+    margin: 0;
   }
 `;
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <FluentProvider theme={webLightTheme}>
       <GlobalStyle />
       <Component {...pageProps} />
-    </>
+    </FluentProvider>
   );
 }
