@@ -1,18 +1,19 @@
-name: Build Electron App
+name: Build and Release Electron App
 
 on:
+  # 手動でワークフローを実行できるようにする
+  workflow_dispatch:
+  # v1.0.0 などのタグをプッシュしたときに自動でリリースを作成する
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  # Releaseタグを作成したときにビルドする場合は以下のコメントを外します
-  # release:
-  #   types: [published]
+    tags:
+      - 'v*.*.*'
+
+# GITHUB_TOKEN にリリースを作成・更新する権限を付与します
+permissions:
+  contents: write
 
 jobs:
-  build:
+  release:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -25,30 +26,25 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # package.jsonのdevDependencies（@types/node: ^20.11.25）に合わせています
+          node-version: '20'
           cache: 'npm'
 
       - name: Install Dependencies
-        # npm ci を使用すると package-lock.json に基づいてクリーンなインストールを行います
         run: npm ci
 
       - name: Build Electron App
-        # 環境変数 GH_TOKEN または GITHUB_TOKEN があると release 時の自動ドラフト作成などに役立ちます
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # パッケージ内に定義されている dist コマンドを実行します（npm run build && electron-builder）
         run: npm run dist
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        # タグがプッシュされた時、または手動実行時にアップロードします
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
-          name: built-app-${{ matrix.os }}
-          # electron-builder のデフォルトの出力先は 'dist' ディレクトリです
-          # 拡張子を指定してインストーラーや実行ファイルのみをアップロードします
-          path: |
+          # リリースに追加するファイルのパスを指定します
+          files: |
             dist/*.exe
             dist/*.dmg
             dist/*.AppImage
             dist/*.deb
             dist/*.zip
-          retention-days: 7
+          # 手動実行の場合は draft（下書き）として作成する設定なども可能です（今回は通常のリリースになります）
